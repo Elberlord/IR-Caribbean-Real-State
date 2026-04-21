@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Properties | I&R Caribbean Real Estate</title>
+    <meta
+      name="description"
+      content="Dedicated property page with filters by country and state or province, plus direct WhatsApp and email inquiry."
+    />
+    <meta name="theme-color" content="#0a0a0a" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="site-shell">
+      <header class="topbar">
+        <a href="index.html" class="brand" aria-label="I&R Caribbean Real Estate home">
+          <span class="brand-monogram">I&amp;R</span>
+          <span class="brand-copy">
+            <strong>Caribbean</strong>
+            <small>Real Estate</small>
+          </span>
+        </a>
+
+        <button class="nav-toggle" id="navToggle" aria-label="Open navigation" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <nav class="nav" id="mainNav">
+          <a href="index.html#about">About</a>
+          <a href="properties.html">Properties</a>
+          <a href="index.html#services">Services</a>
+          <a href="index.html#contact">Contact</a>
+          <a class="btn btn-outline btn-sm" id="headerWhatsapp" href="#contact">WhatsApp</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="page-hero reveal">
+          <div class="page-hero-copy">
+            <p class="eyebrow">Dedicated listings page</p>
+            <h1>Browse properties with clean filters and direct contact.</h1>
+            <p>
+              Filter by country and state or province, then contact directly by WhatsApp or email. No account wall, no extra friction.
+            </p>
+          </div>
+          <div class="page-hero-actions">
+            <a class="btn btn-gold" id="heroWhatsapp" href="#">Talk on WhatsApp</a>
+            <a class="btn btn-outline" href="manage-properties.html">Manage properties</a>
+          </div>
+        </section>
+
+        <section class="section reveal">
+          <div class="filter-panel">
+            <div class="filter-grid">
+              <label class="field">
+                <span>Search</span>
+                <input id="searchInput" type="search" placeholder="villa, investment, family, beach..." />
+              </label>
+              <label class="field">
+                <span>Country</span>
+                <select id="countryFilter">
+                  <option value="">All countries</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>State / Province</span>
+                <select id="regionFilter">
+                  <option value="">All states / provinces</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Type</span>
+                <select id="typeFilter">
+                  <option value="">All property types</option>
+                </select>
+              </label>
+            </div>
+            <div class="filter-actions">
+              <p id="resultsCount">0 properties</p>
+              <button class="btn btn-outline btn-sm" id="clearFilters" type="button">Clear filters</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="section reveal">
+          <div class="properties-layout">
+            <div class="property-grid wide" id="propertiesGrid"></div>
+            <aside class="properties-sidebar panel">
+              <p class="eyebrow">Need help fast?</p>
+              <h3>Contact the team directly.</h3>
+              <p>
+                Each property card can open a ready-made WhatsApp message, and this page also keeps your main contact buttons visible.
+              </p>
+              <a class="btn btn-gold btn-full" id="sidebarWhatsapp" href="#">WhatsApp</a>
+              <a class="btn btn-outline btn-full" id="sidebarEmail" href="#">Email</a>
+              <div class="sidebar-note">
+                <strong>Tip:</strong>
+                <span>Open <code>manage-properties.html</code> to add, edit, export, or import listings for this static GitHub Pages setup.</span>
+              </div>
+            </aside>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <p>© <span id="year"></span> I&R Caribbean Real Estate. Premium presentation, direct contact, simple deployment.</p>
+        <a id="floatingWhatsapp" class="floating-whatsapp" href="#" aria-label="Chat on WhatsApp">WhatsApp</a>
+      </footer>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="properties.js"></script>
+  </body>
+</html>

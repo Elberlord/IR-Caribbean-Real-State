@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Properties | I&R Caribbean Real Estate</title>
+    <meta
+      name="description"
+      content="Local property manager for adding listings, exporting JSON, and using a static GitHub Pages workflow."
+    />
+    <meta name="theme-color" content="#0a0a0a" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="site-shell">
+      <header class="topbar">
+        <a href="index.html" class="brand" aria-label="I&R Caribbean Real Estate home">
+          <span class="brand-monogram">I&amp;R</span>
+          <span class="brand-copy">
+            <strong>Caribbean</strong>
+            <small>Real Estate</small>
+          </span>
+        </a>
+
+        <button class="nav-toggle" id="navToggle" aria-label="Open navigation" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <nav class="nav" id="mainNav">
+          <a href="index.html#about">About</a>
+          <a href="properties.html">Properties</a>
+          <a href="index.html#services">Services</a>
+          <a href="index.html#contact">Contact</a>
+          <a class="btn btn-outline btn-sm" id="headerWhatsapp" href="#contact">WhatsApp</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="page-hero reveal">
+          <div class="page-hero-copy">
+            <p class="eyebrow">Local property manager</p>
+            <h1>Add listings, export JSON, and publish them to GitHub Pages.</h1>
+            <p>
+              This is the honest static-site workflow: you manage properties here, export the file, replace <code>data/properties.json</code> in your repo, and push changes.
+            </p>
+          </div>
+          <div class="page-hero-actions">
+            <a class="btn btn-outline" href="properties.html">View properties page</a>
+          </div>
+        </section>
+
+        <section class="section reveal">
+          <div class="admin-layout">
+            <article class="panel admin-panel">
+              <div class="admin-head">
+                <div>
+                  <p class="eyebrow">Property form</p>
+                  <h2 id="formTitle">Add a new property</h2>
+                </div>
+                <button class="btn btn-outline btn-sm" id="resetFormButton" type="button">Reset form</button>
+              </div>
+
+              <form id="propertyForm" class="admin-form">
+                <input type="hidden" id="propertyId" />
+                <div class="admin-grid">
+                  <label class="field"><span>Title</span><input id="title" required type="text" placeholder="Oceanview Villa in Cap Cana" /></label>
+                  <label class="field"><span>Badge</span><input id="badge" type="text" placeholder="Featured / New / Investment" /></label>
+                  <label class="field"><span>Country</span><input id="country" required type="text" placeholder="Dominican Republic" /></label>
+                  <label class="field"><span>State / Province</span><input id="region" required type="text" placeholder="La Altagracia" /></label>
+                  <label class="field"><span>City / Area</span><input id="city" required type="text" placeholder="Punta Cana" /></label>
+                  <label class="field"><span>Type</span><input id="type" required type="text" placeholder="Villa / Condo / House / Land" /></label>
+                  <label class="field"><span>Status</span><input id="status" required type="text" placeholder="For Sale / For Rent" /></label>
+                  <label class="field"><span>Currency</span><input id="currency" type="text" placeholder="USD" value="USD" /></label>
+                  <label class="field"><span>Price</span><input id="price" required type="number" min="0" step="1" placeholder="1250000" /></label>
+                  <label class="field"><span>Bedrooms</span><input id="beds" type="number" min="0" step="1" placeholder="4" /></label>
+                  <label class="field"><span>Bathrooms</span><input id="baths" type="number" min="0" step="0.5" placeholder="3.5" /></label>
+                  <label class="field"><span>Area (m²)</span><input id="area" type="number" min="0" step="1" placeholder="420" /></label>
+                  <label class="field full"><span>Image URL</span><input id="image" type="url" placeholder="https://images.unsplash.com/..." /></label>
+                  <label class="field full"><span>Short description</span><textarea id="description" rows="4" placeholder="Describe the property's strongest selling points."></textarea></label>
+                  <label class="field checkbox-field"><input id="featured" type="checkbox" /><span>Mark as featured</span></label>
+                </div>
+
+                <div class="admin-actions">
+                  <button class="btn btn-gold" type="submit" id="saveButton">Save property</button>
+                  <button class="btn btn-outline" type="button" id="cancelEditButton">Cancel edit</button>
+                </div>
+              </form>
+            </article>
+
+            <aside class="panel admin-side-panel">
+              <p class="eyebrow">Static workflow</p>
+              <h3>How this works on GitHub Pages</h3>
+              <ol class="admin-steps">
+                <li>Add or edit listings on this page.</li>
+                <li>Click <strong>Export JSON</strong>.</li>
+                <li>Replace the file <code>data/properties.json</code> in your repo.</li>
+                <li>Push to GitHub and the public properties page updates.</li>
+              </ol>
+              <div class="admin-toolbar">
+                <button class="btn btn-outline btn-sm" id="exportJsonButton" type="button">Export JSON</button>
+                <label class="btn btn-outline btn-sm import-label">
+                  Import JSON
+                  <input id="importJsonInput" type="file" accept="application/json" hidden />
+                </label>
+                <button class="btn btn-outline btn-sm" id="resetSampleButton" type="button">Reset to sample</button>
+              </div>
+              <p class="small-note" id="adminStatus">Using sample properties by default.</p>
+            </aside>
+          </div>
+        </section>
+
+        <section class="section reveal">
+          <div class="section-heading split-heading">
+            <div>
+              <p class="eyebrow">Current local listings</p>
+              <h2>Your properties stored in this browser right now.</h2>
+            </div>
+            <p class="results-inline" id="adminResultsCount">0 properties</p>
+          </div>
+          <div class="admin-list" id="adminPropertyList"></div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <p>© <span id="year"></span> I&R Caribbean Real Estate. Premium presentation, direct contact, simple deployment.</p>
+        <a id="floatingWhatsapp" class="floating-whatsapp" href="#" aria-label="Chat on WhatsApp">WhatsApp</a>
+      </footer>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="admin.js"></script>
+  </body>
+</html>
