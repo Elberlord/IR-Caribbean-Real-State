@@ -1,67 +1,32 @@
-# I&R Caribbean Real Estate
+# I&R Caribbean Real Estate - Public Site
 
-Static real estate website ready for GitHub Pages.
+This folder is the one you should upload to your public GitHub repository.
 
-## What is included
+## Put these files in the root of the repo
 
-- `index.html` → premium homepage
-- `properties.html` → dedicated properties page
-- `manage-properties.html` → local property manager for adding/editing listings
-- `styles.css` → shared styling
-- `script.js` → shared config and helpers
-- `properties.js` → properties page filters and rendering
-- `admin.js` → local admin workflow
-- `data/properties.json` → sample property data
+- `index.html`
+- `properties.html`
+- `styles.css`
+- `script.js`
+- `properties.js`
+- `data/properties.json`
 
-## Important honesty note
+## Important
 
-This project is designed for **GitHub Pages**, which is a static hosting service.
-That means the public site **cannot save new properties directly online by itself** unless you add a backend or an external CMS.
+Do **not** upload the private admin files to the public repo.
 
-The workflow included here is the clean static-site approach:
+## How to update listings
 
-1. Open `manage-properties.html`
-2. Add or edit listings locally in your browser
-3. Click **Export JSON**
-4. Replace `data/properties.json` in your GitHub repository with the exported file
-5. Push changes to GitHub
+1. Open the private admin version on your computer.
+2. Add or edit properties there.
+3. Export `properties.json`.
+4. Replace `data/properties.json` in this public folder or repo.
+5. Commit and push to GitHub.
 
-Once you push, the public `properties.html` page updates.
+## Contact placeholders to update
 
-## Contact configuration
+Open `script.js` and replace:
 
-Open `script.js` and replace these values:
-
-```js
-const CONFIG = {
-  companyName: 'I&R Caribbean Real Estate',
-  whatsappNumber: '10000000000',
-  whatsappDisplay: '+1 000 000 0000',
-  whatsappMessage: 'Hello, I would like information about your properties.',
-  email: 'info@yourdomain.com',
-  emailSubject: 'Property inquiry',
-  emailBody: 'Hello, I would like more information about your properties.'
-};
-```
-
-## Publish to GitHub Pages
-
-1. Create a GitHub repository
-2. Upload all files keeping the same structure
-3. Go to **Settings > Pages**
-4. Under **Build and deployment**, choose **Deploy from a branch**
-5. Select your main branch and the root folder
-6. Save
-
-Your site will publish on the GitHub Pages URL.
-
-## Possible next upgrade
-
-If later you want true online property management without touching JSON manually, the next logical step is connecting this front end to:
-
-- Supabase
-- Firebase
-- Airtable
-- A small custom backend
-
-That would let you add properties from a real admin panel and publish instantly.
+- `whatsappNumber`
+- `whatsappDisplay`
+- `email`
