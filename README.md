@@ -30,3 +30,13 @@ Open `script.js` and replace:
 - `whatsappNumber`
 - `whatsappDisplay`
 - `email`
+
+## Video de bienvenida
+
+La portada ya está preparada para cargar el video principal desde:
+
+`assets/videos/hero-bienvenida.mp4`
+
+Crea la carpeta `assets/videos` si no existe y sube ahí tu archivo MP4 con ese nombre exacto. Si usas otro nombre, cambia la ruta en `index.html` dentro de la etiqueta `<source>`.
+
+Recomendación: usa un MP4 horizontal 16:9, 1080p, corto y optimizado para web.

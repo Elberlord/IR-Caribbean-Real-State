@@ -44,78 +44,31 @@
       </header>
 
       <main>
-        <section class="hero" id="home">
-          <div class="hero-glow hero-glow-left"></div>
-          <div class="hero-glow hero-glow-right"></div>
+        <section class="hero hero-video" id="home" aria-label="Bienvenida principal">
+          <video class="hero-bg-video" autoplay muted loop playsinline preload="metadata">
+            <source src="assets/videos/hero-bienvenida.mp4" type="video/mp4" />
+            Tu navegador no soporta video HTML5.
+          </video>
 
-          <div class="hero-copy reveal">
-            <p class="eyebrow">Luxury homes. Smart deals. Caribbean living.</p>
-            <h1>Elegant real estate with a direct, human-first experience.</h1>
+          <div class="hero-video-overlay"></div>
+
+          <div class="hero-video-content reveal">
+            <p class="eyebrow">I&amp;R Caribbean Real Estate</p>
+            <h1>El lugar correcto se siente desde el primer momento.</h1>
             <p class="hero-text">
-              No account creation. No cold maze. Just premium property guidance,
-              fast answers through WhatsApp, and direct contact by email when you need it.
+              Te ayudamos a encontrarlo con confianza, claridad y un trato humano desde el primer contacto.
             </p>
 
             <div class="hero-actions">
-              <a class="btn btn-gold" id="heroWhatsapp" href="#contact">Talk on WhatsApp</a>
-              <a class="btn btn-outline" id="heroEmail" href="#contact">Send Email</a>
+              <a class="btn btn-gold" id="heroWhatsapp" href="#contact">Hablar por WhatsApp</a>
+              <a class="btn btn-outline" id="heroEmail" href="#contact">Enviar correo</a>
             </div>
 
             <ul class="hero-highlights">
-              <li>Dedicated properties page</li>
-              <li>Filters by country and state / province</li>
-              <li>Direct contact without sign-up friction</li>
+              <li>Atención directa, sin crear cuenta</li>
+              <li>Propiedades organizadas por país y provincia</li>
+              <li>Acompañamiento pensado para familias, hogares e inversión</li>
             </ul>
-          </div>
-
-          <div class="hero-card reveal-delay">
-            <div class="hero-card-frame">
-              <div class="hero-scene">
-                <div class="scene-ring"></div>
-                <svg viewBox="0 0 540 360" aria-label="Luxury real estate visual">
-                  <path class="line soft" d="M92 196 L268 74 L444 196" />
-                  <path class="line soft" d="M120 192 V284 H416 V192" />
-                  <path class="line soft" d="M232 284 V220 H304 V284" />
-
-                  <circle class="line" cx="190" cy="145" r="24" />
-                  <path class="line" d="M190 170 V226" />
-                  <path class="line" d="M190 184 C171 187 162 199 154 214" />
-                  <path class="line" d="M190 184 C212 188 224 196 238 211" />
-                  <path class="line" d="M190 226 L170 274" />
-                  <path class="line" d="M190 226 L206 274" />
-
-                  <circle class="line" cx="346" cy="145" r="24" />
-                  <path class="line" d="M346 170 V226" />
-                  <path class="line" d="M346 184 C364 187 374 198 383 212" />
-                  <path class="line" d="M346 184 C322 188 310 197 294 212" />
-                  <path class="line" d="M346 226 L328 274" />
-                  <path class="line" d="M346 226 L362 274" />
-
-                  <path class="line" d="M238 211 C252 223 264 227 272 226 C281 225 287 221 294 212" />
-                  <path class="line" d="M258 223 L270 230 L282 221" />
-
-                  <circle class="line soft" cx="272" cy="184" r="10" />
-                  <path class="line soft" d="M282 184 H318" />
-                  <path class="line soft" d="M308 184 V176" />
-                  <path class="line soft" d="M316 184 V178" />
-
-                  <path class="fill-shape" d="M136 192 L268 102 L400 192 V284 H136 Z" />
-                  <path class="accent" d="M108 108 L112 116 L120 120 L112 124 L108 132 L104 124 L96 120 L104 116 Z" />
-                  <path class="accent" d="M430 136 L433 142 L439 145 L433 148 L430 154 L427 148 L421 145 L427 142 Z" />
-                </svg>
-              </div>
-
-              <div class="hero-metrics">
-                <article>
-                  <strong>Dedicated properties page</strong>
-                  <span>Everything in one place, not buried inside the homepage.</span>
-                </article>
-                <article>
-                  <strong>Update-friendly workflow</strong>
-                  <span>Keep listings updated with a simple local JSON workflow.</span>
-                </article>
-              </div>
-            </div>
           </div>
         </section>
 
