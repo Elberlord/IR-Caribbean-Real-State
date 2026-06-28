@@ -1190,3 +1190,11 @@ code {
 .admin-session-bar strong {
   color: var(--gold-soft);
 }
+
+.admin-session-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
