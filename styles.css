@@ -752,6 +752,25 @@ code {
   background: rgba(255, 255, 255, 0.045);
 }
 
+/* Native select dropdown styling: keeps the opened menu dark/gold where browsers allow it */
+.field select {
+  color-scheme: dark;
+  background-color: #0b0a08;
+  color: var(--gold-soft);
+}
+
+.field select option {
+  background-color: #0b0a08;
+  color: var(--gold-soft);
+}
+
+.field select option:hover,
+.field select option:focus,
+.field select option:checked {
+  background-color: #c9a658;
+  color: #050505;
+}
+
 .field textarea {
   resize: vertical;
 }
