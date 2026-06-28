@@ -47,7 +47,7 @@
         <section class="page-hero reveal">
           <div class="page-hero-copy">
             <p class="eyebrow">Private admin door</p>
-            <h1>Add property listings and publish them directly with Firebase.</h1>
+            <h1>Add property listings, upload images with Cloudinary, and publish them directly with Firebase.</h1>
             <p>
               This page is not linked from the public navigation. Visitors can open the sales area normally, while the owner enters here with a private Firebase login.
             </p>
@@ -109,7 +109,15 @@
                   <label class="field"><span>Bedrooms</span><input id="beds" type="number" min="0" step="1" placeholder="4" /></label>
                   <label class="field"><span>Bathrooms</span><input id="baths" type="number" min="0" step="0.5" placeholder="3.5" /></label>
                   <label class="field"><span>Area (m²)</span><input id="area" type="number" min="0" step="1" placeholder="420" /></label>
-                  <label class="field full"><span>Image URL</span><input id="image" type="url" placeholder="https://images.unsplash.com/..." /></label>
+                  <input type="hidden" id="galleryUrls" value="[]" />
+                  <label class="field full"><span>Main image URL</span><input id="image" type="url" placeholder="Generated automatically after upload, or paste an external URL" /></label>
+                  <div class="field full file-field"><span>Upload main image</span><button class="btn btn-outline btn-sm" id="uploadMainImageButton" type="button">Upload main image with Cloudinary</button><small>Choose one main photo. Cloudinary generates the link automatically.</small></div>
+                  <div class="media-preview full" id="imagePreview"><span>No main image selected yet.</span></div>
+                  <div class="field full file-field"><span>Upload gallery images</span><button class="btn btn-outline btn-sm" id="uploadGalleryImagesButton" type="button">Upload gallery images with Cloudinary</button><small>Choose multiple photos. The links are generated and saved automatically.</small></div>
+                  <div class="gallery-admin-row full">
+                    <div class="media-preview gallery-preview" id="galleryPreview"><span>No gallery images uploaded yet.</span></div>
+                    <button class="btn btn-outline btn-sm" type="button" id="clearGalleryButton">Clear gallery</button>
+                  </div>
                   <label class="field full"><span>Short description</span><textarea id="description" rows="4" placeholder="Describe the property's strongest selling points."></textarea></label>
                   <label class="field checkbox-field"><input id="featured" type="checkbox" /><span>Mark as featured</span></label>
                   <label class="field checkbox-field"><input id="isPublished" type="checkbox" checked /><span>Publish on public sales page</span></label>
@@ -127,6 +135,7 @@
               <h3>How this works</h3>
               <ol class="admin-steps">
                 <li>The owner signs in through this hidden page.</li>
+                <li>Photos upload to Cloudinary and generate their links automatically.</li>
                 <li>Every saved listing goes to Firestore.</li>
                 <li>The public properties page reads Firestore automatically.</li>
                 <li>Visitors do not need an account to see the sales area.</li>
@@ -165,6 +174,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="https://upload-widget.cloudinary.com/latest/global/all.js"></script>
     <script src="firebase-config.js"></script>
     <script src="script.js"></script>
     <script src="admin.js"></script>

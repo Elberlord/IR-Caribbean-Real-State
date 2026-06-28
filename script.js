@@ -279,6 +279,12 @@ function getFirebaseAuth() {
   return firebase.auth();
 }
 
+function getFirebaseStorage() {
+  const app = getFirebaseApp();
+  if (!app || !firebase.storage) return null;
+  return firebase.storage();
+}
+
 function cleanFirebaseProperty(id, data = {}) {
   return {
     id: data.id || id,
@@ -295,6 +301,7 @@ function cleanFirebaseProperty(id, data = {}) {
     baths: data.baths || '',
     area: data.area || '',
     image: data.image || '',
+    galleryUrls: Array.isArray(data.galleryUrls) ? data.galleryUrls.filter(Boolean) : [],
     description: data.description || '',
     featured: Boolean(data.featured),
     isPublished: data.isPublished !== false,
@@ -389,6 +396,7 @@ function buildPropertyWhatsappMessage(property) {
 
 function propertyCardMarkup(property) {
   const image = property.image || 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80';
+  const galleryUrls = Array.isArray(property.galleryUrls) ? property.galleryUrls.filter(Boolean).slice(0, 4) : [];
   const price = formatCurrency(property.price, property.currency || 'USD');
   const location = [property.city, property.region, property.country].filter(Boolean).join(', ');
   const whatsappLink = buildWhatsappLink(CONFIG.whatsappNumber, buildPropertyWhatsappMessage(property));
@@ -400,7 +408,10 @@ function propertyCardMarkup(property) {
 
   return `
     <article class="property-card">
-      <img class="property-image" src="${escapeHtml(image)}" alt="${escapeHtml(property.title)}" loading="lazy" />
+      <div class="property-media">
+        <img class="property-image" src="${escapeHtml(image)}" alt="${escapeHtml(property.title)}" loading="lazy" />
+        ${galleryUrls.length ? `<div class="property-gallery-strip">${galleryUrls.map((url) => `<img src="${escapeHtml(url)}" alt="${escapeHtml(property.title)} gallery image" loading="lazy" />`).join('')}</div>` : ''}
+      </div>
       <div class="property-copy">
         <div class="property-badges">
           <span class="property-type">${escapeHtml(property.type || 'Property')}</span>

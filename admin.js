@@ -18,6 +18,14 @@
   let firebaseMode = false;
   let isReady = false;
 
+  const CLOUDINARY_CONFIG = {
+    cloudName: 'dkw2nrrg4',
+    uploadPreset: 'ir_properties_unsigned',
+    folder: 'ir-caribbean/properties',
+    allowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
+    maxFileSize: 10000000
+  };
+
   const fields = {
     propertyId: document.getElementById('propertyId'),
     title: document.getElementById('title'),
@@ -33,6 +41,11 @@
     baths: document.getElementById('baths'),
     area: document.getElementById('area'),
     image: document.getElementById('image'),
+    uploadMainImageButton: document.getElementById('uploadMainImageButton'),
+    uploadGalleryImagesButton: document.getElementById('uploadGalleryImagesButton'),
+    galleryUrls: document.getElementById('galleryUrls'),
+    imagePreview: document.getElementById('imagePreview'),
+    galleryPreview: document.getElementById('galleryPreview'),
     description: document.getElementById('description'),
     featured: document.getElementById('featured'),
     isPublished: document.getElementById('isPublished')
@@ -67,6 +80,91 @@
     return `IR-${Date.now()}-${Math.floor(Math.random() * 999)}`;
   }
 
+
+  function parseGalleryUrls() {
+    try {
+      const parsed = JSON.parse(fields.galleryUrls?.value || '[]');
+      return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function renderMediaPreview(mainImage = '', galleryUrls = []) {
+    if (fields.imagePreview) {
+      fields.imagePreview.innerHTML = mainImage
+        ? `<img src="${escapeHtml(mainImage)}" alt="Selected main property preview" />`
+        : '<span>No main image selected yet.</span>';
+    }
+
+    if (fields.galleryPreview) {
+      if (!galleryUrls.length) {
+        fields.galleryPreview.innerHTML = '<span>No gallery images uploaded yet.</span>';
+      } else {
+        fields.galleryPreview.innerHTML = galleryUrls
+          .map((url) => `<img src="${escapeHtml(url)}" alt="Gallery property preview" />`)
+          .join('');
+      }
+    }
+  }
+
+  function hasCloudinaryWidget() {
+    return Boolean(window.cloudinary && typeof window.cloudinary.createUploadWidget === 'function');
+  }
+
+  function setGalleryUrls(urls = []) {
+    const cleanUrls = urls.filter(Boolean);
+    if (fields.galleryUrls) fields.galleryUrls.value = JSON.stringify(cleanUrls);
+    renderMediaPreview(fields.image.value.trim(), cleanUrls);
+  }
+
+  function openCloudinaryUploader({ multiple = false, onUpload }) {
+    if (!hasCloudinaryWidget()) {
+      setStatus('Cloudinary widget is not available yet. Refresh the page and try again.');
+      return;
+    }
+
+    const uploadedUrls = [];
+    const widget = cloudinary.createUploadWidget(
+      {
+        cloudName: CLOUDINARY_CONFIG.cloudName,
+        uploadPreset: CLOUDINARY_CONFIG.uploadPreset,
+        folder: CLOUDINARY_CONFIG.folder,
+        sources: ['local', 'url', 'camera'],
+        multiple,
+        maxFiles: multiple ? 20 : 1,
+        resourceType: 'image',
+        clientAllowedFormats: CLOUDINARY_CONFIG.allowedFormats,
+        maxFileSize: CLOUDINARY_CONFIG.maxFileSize,
+        cropping: false,
+        showAdvancedOptions: false
+      },
+      (error, result) => {
+        if (error) {
+          console.error(error);
+          setStatus(`Cloudinary upload failed: ${error.message || 'Unknown error'}`);
+          return;
+        }
+
+        if (result && result.event === 'success') {
+          const imageUrl = result.info?.secure_url;
+          if (!imageUrl) return;
+          uploadedUrls.push(imageUrl);
+          onUpload(imageUrl, uploadedUrls);
+          setStatus(`${uploadedUrls.length} image${uploadedUrls.length === 1 ? '' : 's'} uploaded with Cloudinary. Save the property to publish the new links.`);
+        }
+      }
+    );
+
+    widget.open();
+  }
+
+  async function attachUploadedImages(property) {
+    property.galleryUrls = Array.isArray(property.galleryUrls) ? property.galleryUrls : [];
+    property.image = property.image || defaultImage();
+    return property;
+  }
+
   function readFormData() {
     return {
       id: fields.propertyId.value || makeId(),
@@ -82,7 +180,8 @@
       beds: fields.beds.value ? Number(fields.beds.value) : '',
       baths: fields.baths.value ? Number(fields.baths.value) : '',
       area: fields.area.value ? Number(fields.area.value) : '',
-      image: fields.image.value.trim() || defaultImage(),
+      image: fields.image.value.trim(),
+      galleryUrls: parseGalleryUrls(),
       description: fields.description.value.trim(),
       featured: fields.featured.checked,
       isPublished: fields.isPublished ? fields.isPublished.checked : true
@@ -104,6 +203,8 @@
     fields.baths.value = property.baths || '';
     fields.area.value = property.area || '';
     fields.image.value = property.image || '';
+    if (fields.galleryUrls) fields.galleryUrls.value = JSON.stringify(Array.isArray(property.galleryUrls) ? property.galleryUrls : []);
+    renderMediaPreview(property.image || '', Array.isArray(property.galleryUrls) ? property.galleryUrls : []);
     fields.description.value = property.description || '';
     fields.featured.checked = Boolean(property.featured);
     if (fields.isPublished) fields.isPublished.checked = property.isPublished !== false;
@@ -114,6 +215,8 @@
     form.reset();
     fields.propertyId.value = '';
     fields.currency.value = 'USD';
+    if (fields.galleryUrls) fields.galleryUrls.value = '[]';
+    renderMediaPreview('', []);
     if (fields.isPublished) fields.isPublished.checked = true;
     formTitle.textContent = 'Add a new property';
   }
@@ -242,7 +345,7 @@
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    const property = readFormData();
+    let property = readFormData();
 
     if (!property.title || !property.country || !property.region || !property.city || !property.type || !property.status || !property.price) {
       setStatus('Please complete the required fields before saving.');
@@ -250,6 +353,8 @@
     }
 
     try {
+      property = await attachUploadedImages(property);
+
       if (firebaseMode) {
         const saved = await saveFirebaseProperty(property);
         const existingIndex = properties.findIndex((item) => item.id === saved.id);
@@ -342,6 +447,34 @@
   document.getElementById('resetFormButton')?.addEventListener('click', resetForm);
   document.getElementById('cancelEditButton')?.addEventListener('click', resetForm);
   document.getElementById('resetSampleButton')?.addEventListener('click', resetToSample);
+  fields.image?.addEventListener('input', () => renderMediaPreview(fields.image.value.trim(), parseGalleryUrls()));
+
+  fields.uploadMainImageButton?.addEventListener('click', () => {
+    openCloudinaryUploader({
+      multiple: false,
+      onUpload: (imageUrl) => {
+        fields.image.value = imageUrl;
+        renderMediaPreview(imageUrl, parseGalleryUrls());
+      }
+    });
+  });
+
+  fields.uploadGalleryImagesButton?.addEventListener('click', () => {
+    openCloudinaryUploader({
+      multiple: true,
+      onUpload: (imageUrl) => {
+        const updatedGallery = parseGalleryUrls().concat(imageUrl);
+        setGalleryUrls(updatedGallery);
+      }
+    });
+  });
+
+  document.getElementById('clearGalleryButton')?.addEventListener('click', () => {
+    if (fields.galleryUrls) fields.galleryUrls.value = '[]';
+    renderMediaPreview(fields.image.value.trim(), []);
+    setStatus('Gallery cleared in the form. Save the property to apply this change.');
+  });
+
   document.getElementById('importJsonInput')?.addEventListener('change', async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;

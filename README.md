@@ -1,54 +1,36 @@
-# I&R Caribbean Real Estate - Public Site
+# I&R Caribbean Real Estate
 
-This folder is the one you should upload to your public GitHub repository.
+This version is ready for GitHub Pages + Firebase + Cloudinary.
 
-## Put these files in the root of the repo
+## Public pages
 
 - `index.html`
 - `properties.html`
-- `styles.css`
-- `script.js`
-- `properties.js`
-- `data/properties.json`
 
-## Important
+Visitors do not need an account. The public properties page reads published listings from Firestore.
 
-Do **not** upload the private admin files to the public repo.
+## Hidden admin page
 
-## How to update listings
+- `manage-properties.html`
 
-1. Open the private admin version on your computer.
-2. Add or edit properties there.
-3. Export `properties.json`.
-4. Replace `data/properties.json` in this public folder or repo.
-5. Commit and push to GitHub.
+This page is not linked in the public navigation. Share this URL only with the owner/admin.
 
-## Contact placeholders to update
+The admin can:
 
-Open `script.js` and replace:
+- Sign in with Firebase Authentication.
+- Add, edit, publish, hide, or delete properties.
+- Upload a main image with Cloudinary.
+- Upload multiple gallery images with Cloudinary.
+- Save the generated image URLs automatically in Firestore.
+- Click `Review public result` to open the public properties page.
 
-- `whatsappNumber`
-- `whatsappDisplay`
-- `email`
+## Firebase setup
 
-## Video de bienvenida
-
-La portada ya está preparada para cargar el video principal desde:
-
-`assets/videos/hero-bienvenida.mp4`
-
-Crea la carpeta `assets/videos` si no existe y sube ahí tu archivo MP4 con ese nombre exacto. Si usas otro nombre, cambia la ruta en `index.html` dentro de la etiqueta `<source>`.
-
-Recomendación: usa un MP4 horizontal 16:9, 1080p, corto y optimizado para web.
-
-## Firebase admin panel
-
-This version includes a hidden admin page at `manage-properties.html`. Do not link it in the public navigation. Share that URL only with the owner.
-
-1. Open `firebase-config.js` and paste the Firebase Web App config.
-2. In Firebase Authentication, enable Email/Password sign-in and create the owner account.
-3. In Firestore, create/use the collection named `properties`.
-4. Suggested Firestore rules for this setup:
+1. Open `firebase-config.js` and confirm the Firebase Web App config is filled.
+2. In Firebase Authentication, enable Email/Password sign-in.
+3. Create the owner/admin user.
+4. In Firestore, use the collection named `properties`.
+5. Use these Firestore rules:
 
 ```txt
 rules_version = '2';
@@ -62,4 +44,38 @@ service cloud.firestore {
 }
 ```
 
-Public visitors can read listings without an account. Only authenticated Firebase users can create, edit, or delete listings.
+## Cloudinary setup
+
+This project uses Cloudinary instead of Firebase Storage, so Firebase Blaze is not required for image uploads.
+
+Current Cloudinary values are already placed in `admin.js`:
+
+```txt
+cloudName: dkw2nrrg4
+uploadPreset: ir_properties_unsigned
+folder: ir-caribbean/properties
+```
+
+Cloudinary upload preset requirements:
+
+- Signing mode: `Unsigned`
+- Asset folder: `ir-caribbean/properties`
+- Public ID: auto-generated
+
+The admin does not need to copy image links. Cloudinary generates the URLs and the admin panel saves them in Firestore.
+
+## Contact placeholders to update
+
+Open `script.js` and replace:
+
+- `whatsappNumber`
+- `whatsappDisplay`
+- `email`
+
+## Welcome video
+
+The homepage is prepared to load:
+
+`hero-bienvenida.mp4`
+
+Keep that file in the root unless you change the video path in `index.html`.

@@ -775,6 +775,68 @@ code {
   resize: vertical;
 }
 
+
+.file-field small {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.file-field input[type="file"] {
+  cursor: pointer;
+}
+
+.media-preview {
+  min-height: 86px;
+  border: 1px dashed rgba(201, 166, 88, 0.22);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.018);
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+  color: var(--muted);
+}
+
+.media-preview img {
+  width: 112px;
+  height: 76px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid rgba(201, 166, 88, 0.18);
+}
+
+.gallery-admin-row {
+  display: grid;
+  gap: 12px;
+}
+
+.gallery-preview {
+  flex-wrap: wrap;
+  min-height: 104px;
+}
+
+.property-media {
+  display: grid;
+  gap: 8px;
+}
+
+.property-gallery-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0 14px 14px;
+}
+
+.property-gallery-strip img {
+  width: 100%;
+  aspect-ratio: 1.2 / 1;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgba(201, 166, 88, 0.14);
+  background: #111;
+}
+
 .checkbox-field {
   display: inline-flex;
   align-items: center;
