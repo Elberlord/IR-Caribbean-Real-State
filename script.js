@@ -10,6 +10,7 @@ const CONFIG = {
 
 const PROPERTY_STORAGE_KEY = 'irPropertiesData';
 const PROPERTY_DATA_PATH = 'data/properties.json';
+const FIREBASE_COLLECTION_NAME = window.IR_FIREBASE_COLLECTION || 'properties';
 
 const SAMPLE_PROPERTIES = [
   {
@@ -247,19 +248,133 @@ function getStoredProperties() {
   }
 }
 
+function hasValidFirebaseConfig() {
+  const config = window.IR_FIREBASE_CONFIG;
+  return Boolean(
+    config &&
+      config.apiKey &&
+      config.projectId &&
+      !String(config.apiKey).includes('PASTE_') &&
+      !String(config.projectId).includes('PASTE_')
+  );
+}
+
+function getFirebaseApp() {
+  if (!hasValidFirebaseConfig() || !window.firebase) return null;
+  if (!firebase.apps.length) {
+    firebase.initializeApp(window.IR_FIREBASE_CONFIG);
+  }
+  return firebase.app();
+}
+
+function getFirebaseFirestore() {
+  const app = getFirebaseApp();
+  if (!app || !firebase.firestore) return null;
+  return firebase.firestore();
+}
+
+function getFirebaseAuth() {
+  const app = getFirebaseApp();
+  if (!app || !firebase.auth) return null;
+  return firebase.auth();
+}
+
+function cleanFirebaseProperty(id, data = {}) {
+  return {
+    id: data.id || id,
+    title: data.title || '',
+    badge: data.badge || '',
+    country: data.country || '',
+    region: data.region || '',
+    city: data.city || '',
+    type: data.type || '',
+    status: data.status || 'For Sale',
+    currency: data.currency || 'USD',
+    price: Number(data.price) || 0,
+    beds: data.beds || '',
+    baths: data.baths || '',
+    area: data.area || '',
+    image: data.image || '',
+    description: data.description || '',
+    featured: Boolean(data.featured),
+    isPublished: data.isPublished !== false,
+    createdAt: data.createdAt || null,
+    updatedAt: data.updatedAt || null
+  };
+}
+
+async function loadFirebaseProperties(includeUnpublished = false) {
+  const db = getFirebaseFirestore();
+  if (!db) return null;
+
+  const snapshot = await db.collection(FIREBASE_COLLECTION_NAME).get();
+  const docs = [];
+  snapshot.forEach((doc) => {
+    const property = cleanFirebaseProperty(doc.id, doc.data());
+    if (includeUnpublished || property.isPublished) docs.push(property);
+  });
+
+  docs.sort((a, b) => {
+    if (a.featured !== b.featured) return a.featured ? -1 : 1;
+    return String(a.title || '').localeCompare(String(b.title || ''));
+  });
+
+  return docs;
+}
+
+async function saveFirebaseProperty(property) {
+  const db = getFirebaseFirestore();
+  if (!db) throw new Error('Firebase is not configured.');
+  const id = property.id || `IR-${Date.now()}-${Math.floor(Math.random() * 999)}`;
+  const payload = {
+    ...property,
+    id,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  await db.collection(FIREBASE_COLLECTION_NAME).doc(id).set(payload, { merge: true });
+  return { ...property, id };
+}
+
+async function deleteFirebaseProperty(id) {
+  const db = getFirebaseFirestore();
+  if (!db) throw new Error('Firebase is not configured.');
+  await db.collection(FIREBASE_COLLECTION_NAME).doc(id).delete();
+}
+
+async function importPropertiesToFirebase(properties) {
+  const db = getFirebaseFirestore();
+  if (!db) throw new Error('Firebase is not configured.');
+  const batch = db.batch();
+  properties.forEach((property) => {
+    const id = property.id || `IR-${Date.now()}-${Math.floor(Math.random() * 999)}`;
+    const ref = db.collection(FIREBASE_COLLECTION_NAME).doc(id);
+    batch.set(ref, { ...property, id, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+  });
+  await batch.commit();
+}
+
 async function loadProperties() {
-  const stored = getStoredProperties();
-  if (stored && stored.length) return stored;
+  try {
+    const firebaseProperties = await loadFirebaseProperties(false);
+    if (firebaseProperties && firebaseProperties.length) return firebaseProperties;
+  } catch (error) {
+    console.warn('Could not load Firebase properties. Falling back to static data.', error);
+  }
 
   try {
     const response = await fetch(PROPERTY_DATA_PATH, { cache: 'no-store' });
     if (!response.ok) throw new Error(`Failed to load properties: ${response.status}`);
     const data = await response.json();
-    return Array.isArray(data) ? data : [];
+    if (Array.isArray(data) && data.length) return data;
   } catch (error) {
-    console.warn('Falling back to bundled sample properties.', error);
-    return typeof structuredClone !== 'undefined' ? structuredClone(SAMPLE_PROPERTIES) : JSON.parse(JSON.stringify(SAMPLE_PROPERTIES));
+    console.warn('Could not load data/properties.json.', error);
   }
+
+  const stored = getStoredProperties();
+  if (stored && stored.length) return stored;
+
+  console.warn('Falling back to bundled sample properties.');
+  return typeof structuredClone !== 'undefined' ? structuredClone(SAMPLE_PROPERTIES) : JSON.parse(JSON.stringify(SAMPLE_PROPERTIES));
 }
 
 function buildPropertyWhatsappMessage(property) {

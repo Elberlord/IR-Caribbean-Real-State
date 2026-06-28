@@ -4,10 +4,19 @@
   const statusText = document.getElementById('adminStatus');
   const resultsCount = document.getElementById('adminResultsCount');
   const formTitle = document.getElementById('formTitle');
+  const loginSection = document.getElementById('adminLoginSection');
+  const adminPanelSection = document.getElementById('adminPanelSection');
+  const loginForm = document.getElementById('adminLoginForm');
+  const loginStatus = document.getElementById('loginStatus');
+  const adminUserLabel = document.getElementById('adminUserLabel');
+  const signOutButton = document.getElementById('signOutButton');
 
   if (!form || !list) return;
 
   let properties = [];
+  let auth = null;
+  let firebaseMode = false;
+  let isReady = false;
 
   const fields = {
     propertyId: document.getElementById('propertyId'),
@@ -25,7 +34,8 @@
     area: document.getElementById('area'),
     image: document.getElementById('image'),
     description: document.getElementById('description'),
-    featured: document.getElementById('featured')
+    featured: document.getElementById('featured'),
+    isPublished: document.getElementById('isPublished')
   };
 
   function defaultImage() {
@@ -34,6 +44,23 @@
 
   function setStatus(message) {
     if (statusText) statusText.textContent = message;
+  }
+
+  function setLoginStatus(message) {
+    if (loginStatus) loginStatus.textContent = message;
+  }
+
+  function showAdminPanel(user) {
+    loginSection?.classList.add('is-hidden');
+    document.querySelectorAll('.admin-only').forEach((section) => section.classList.remove('is-hidden'));
+    adminPanelSection?.classList.remove('is-hidden');
+    if (adminUserLabel) adminUserLabel.textContent = user?.email ? `Signed in as ${user.email}` : 'Signed in';
+  }
+
+  function showLoginPanel() {
+    loginSection?.classList.remove('is-hidden');
+    document.querySelectorAll('.admin-only').forEach((section) => section.classList.add('is-hidden'));
+    adminPanelSection?.classList.add('is-hidden');
   }
 
   function makeId() {
@@ -57,7 +84,8 @@
       area: fields.area.value ? Number(fields.area.value) : '',
       image: fields.image.value.trim() || defaultImage(),
       description: fields.description.value.trim(),
-      featured: fields.featured.checked
+      featured: fields.featured.checked,
+      isPublished: fields.isPublished ? fields.isPublished.checked : true
     };
   }
 
@@ -78,6 +106,7 @@
     fields.image.value = property.image || '';
     fields.description.value = property.description || '';
     fields.featured.checked = Boolean(property.featured);
+    if (fields.isPublished) fields.isPublished.checked = property.isPublished !== false;
     formTitle.textContent = 'Edit property';
   }
 
@@ -85,6 +114,7 @@
     form.reset();
     fields.propertyId.value = '';
     fields.currency.value = 'USD';
+    if (fields.isPublished) fields.isPublished.checked = true;
     formTitle.textContent = 'Add a new property';
   }
 
@@ -97,7 +127,7 @@
       list.innerHTML = `
         <div class="empty-state">
           <h3>No properties yet</h3>
-          <p>Add your first listing with the form above, then export the JSON when you're ready to publish.</p>
+          <p>Add your first listing with the form above. When Firebase is configured, saved listings update the public page automatically.</p>
         </div>
       `;
       return;
@@ -113,6 +143,7 @@
                 <span class="property-type">${escapeHtml(property.type || 'Property')}</span>
                 <span class="status-pill">${escapeHtml(property.status || 'For Sale')}</span>
                 ${property.badge ? `<span class="property-badge">${escapeHtml(property.badge)}</span>` : ''}
+                ${property.isPublished === false ? '<span class="property-badge">Hidden</span>' : '<span class="property-badge">Public</span>'}
               </div>
               <h3>${escapeHtml(property.title)}</h3>
               <div class="admin-list-meta">
@@ -135,15 +166,25 @@
   }
 
   async function loadInitial() {
-    const local = getStoredProperties();
-    if (local && local.length) {
-      properties = local;
-      setStatus('Using the properties currently stored in this browser.');
+    if (isReady) return;
+    isReady = true;
+
+    if (firebaseMode) {
+      const firebaseProperties = await loadFirebaseProperties(true);
+      properties = firebaseProperties || [];
+      setStatus('Connected to Firebase. Saved changes publish to the public sales page automatically.');
     } else {
-      properties = await loadProperties();
-      saveToLocal();
-      setStatus('Loaded sample properties and saved them locally in this browser.');
+      const local = getStoredProperties();
+      if (local && local.length) {
+        properties = local;
+        setStatus('Firebase is not configured yet. Using properties stored in this browser for local testing.');
+      } else {
+        properties = await loadProperties();
+        saveToLocal();
+        setStatus('Firebase is not configured yet. Loaded demo properties for local testing.');
+      }
     }
+
     renderList();
   }
 
@@ -157,7 +198,7 @@
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-    setStatus('Exported properties.json. Replace data/properties.json in your GitHub repo with this file.');
+    setStatus('Exported a backup properties.json file.');
   }
 
   async function importJson(file) {
@@ -166,23 +207,40 @@
     if (!Array.isArray(parsed)) {
       throw new Error('The imported JSON must be an array of properties.');
     }
-    properties = parsed;
-    saveToLocal();
+
+    properties = parsed.map((property) => ({ ...property, isPublished: property.isPublished !== false }));
+
+    if (firebaseMode) {
+      await importPropertiesToFirebase(properties);
+      properties = (await loadFirebaseProperties(true)) || properties;
+      setStatus('Imported JSON into Firebase successfully.');
+    } else {
+      saveToLocal();
+      setStatus('Imported JSON locally. Configure Firebase to publish automatically.');
+    }
+
     renderList();
     resetForm();
-    setStatus('Imported JSON successfully. These properties are now stored in this browser.');
   }
 
   async function resetToSample() {
-    const sample = await loadProperties();
-    properties = sample;
-    saveToLocal();
+    const sample = typeof structuredClone !== 'undefined' ? structuredClone(SAMPLE_PROPERTIES) : JSON.parse(JSON.stringify(SAMPLE_PROPERTIES));
+    properties = sample.map((property) => ({ ...property, isPublished: true }));
+
+    if (firebaseMode) {
+      await importPropertiesToFirebase(properties);
+      properties = (await loadFirebaseProperties(true)) || properties;
+      setStatus('Sample properties were sent to Firebase.');
+    } else {
+      saveToLocal();
+      setStatus('Reset to bundled demo properties locally.');
+    }
+
     renderList();
     resetForm();
-    setStatus('Reset to the sample properties from data/properties.json.');
   }
 
-  form.addEventListener('submit', (event) => {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const property = readFormData();
 
@@ -191,21 +249,35 @@
       return;
     }
 
-    const existingIndex = properties.findIndex((item) => item.id === property.id);
-    if (existingIndex >= 0) {
-      properties[existingIndex] = property;
-      setStatus(`Updated ${property.title}.`);
-    } else {
-      properties.unshift(property);
-      setStatus(`Added ${property.title}.`);
-    }
+    try {
+      if (firebaseMode) {
+        const saved = await saveFirebaseProperty(property);
+        const existingIndex = properties.findIndex((item) => item.id === saved.id);
+        if (existingIndex >= 0) properties[existingIndex] = saved;
+        else properties.unshift(saved);
+        properties = (await loadFirebaseProperties(true)) || properties;
+        setStatus(`Saved ${property.title} to Firebase.`);
+      } else {
+        const existingIndex = properties.findIndex((item) => item.id === property.id);
+        if (existingIndex >= 0) {
+          properties[existingIndex] = property;
+          setStatus(`Updated ${property.title} locally.`);
+        } else {
+          properties.unshift(property);
+          setStatus(`Added ${property.title} locally.`);
+        }
+        saveToLocal();
+      }
 
-    saveToLocal();
-    renderList();
-    resetForm();
+      renderList();
+      resetForm();
+    } catch (error) {
+      console.error(error);
+      setStatus(`Save failed: ${error.message}`);
+    }
   });
 
-  list.addEventListener('click', (event) => {
+  list.addEventListener('click', async (event) => {
     const editId = event.target.getAttribute('data-edit');
     const deleteId = event.target.getAttribute('data-delete');
 
@@ -222,11 +294,48 @@
       if (!property) return;
       const confirmed = window.confirm(`Delete ${property.title}?`);
       if (!confirmed) return;
-      properties = properties.filter((item) => item.id !== deleteId);
-      saveToLocal();
-      renderList();
-      setStatus(`Deleted ${property.title}.`);
+
+      try {
+        if (firebaseMode) {
+          await deleteFirebaseProperty(deleteId);
+          properties = (await loadFirebaseProperties(true)) || properties.filter((item) => item.id !== deleteId);
+          setStatus(`Deleted ${property.title} from Firebase.`);
+        } else {
+          properties = properties.filter((item) => item.id !== deleteId);
+          saveToLocal();
+          setStatus(`Deleted ${property.title} locally.`);
+        }
+        renderList();
+      } catch (error) {
+        console.error(error);
+        setStatus(`Delete failed: ${error.message}`);
+      }
     }
+  });
+
+  loginForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!auth) {
+      setLoginStatus('Firebase is not configured yet. Fill firebase-config.js first.');
+      return;
+    }
+
+    const email = document.getElementById('adminEmail')?.value.trim();
+    const password = document.getElementById('adminPassword')?.value;
+    if (!email || !password) return;
+
+    try {
+      setLoginStatus('Checking credentials...');
+      await auth.signInWithEmailAndPassword(email, password);
+      loginForm.reset();
+    } catch (error) {
+      console.error(error);
+      setLoginStatus(`Login failed: ${error.message}`);
+    }
+  });
+
+  signOutButton?.addEventListener('click', async () => {
+    if (auth) await auth.signOut();
   });
 
   document.getElementById('exportJsonButton')?.addEventListener('click', exportJson);
@@ -246,5 +355,32 @@
     }
   });
 
-  loadInitial();
+  try {
+    auth = getFirebaseAuth();
+    firebaseMode = Boolean(auth && getFirebaseFirestore());
+  } catch (error) {
+    console.warn('Firebase admin mode is unavailable.', error);
+    firebaseMode = false;
+  }
+
+  if (firebaseMode) {
+    showLoginPanel();
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        showAdminPanel(user);
+        setLoginStatus('Access granted.');
+        await loadInitial();
+      } else {
+        isReady = false;
+        properties = [];
+        renderList();
+        showLoginPanel();
+        setLoginStatus('Firebase login required.');
+      }
+    });
+  } else {
+    showAdminPanel({ email: 'Local test mode' });
+    setLoginStatus('Firebase is not configured yet. Local test mode is open.');
+    loadInitial();
+  }
 })();

@@ -6,7 +6,7 @@
     <title>Manage Properties | I&R Caribbean Real Estate</title>
     <meta
       name="description"
-      content="Local property manager for adding listings, exporting JSON, and using a static GitHub Pages workflow."
+      content="Private Firebase property manager for adding and updating live public listings."
     />
     <meta name="theme-color" content="#0a0a0a" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -46,10 +46,10 @@
       <main>
         <section class="page-hero reveal">
           <div class="page-hero-copy">
-            <p class="eyebrow">Local property manager</p>
-            <h1>Add listings, export JSON, and publish them to GitHub Pages.</h1>
+            <p class="eyebrow">Private admin door</p>
+            <h1>Add property listings and publish them directly with Firebase.</h1>
             <p>
-              This is the honest static-site workflow: you manage properties here, export the file, replace <code>data/properties.json</code> in your repo, and push changes.
+              This page is not linked from the public navigation. Visitors can open the sales area normally, while the owner enters here with a private Firebase login.
             </p>
           </div>
           <div class="page-hero-actions">
@@ -57,7 +57,30 @@
           </div>
         </section>
 
-        <section class="section reveal">
+        <section class="section reveal" id="adminLoginSection">
+          <article class="panel admin-login-panel">
+            <div>
+              <p class="eyebrow">Administrator access</p>
+              <h2>Sign in to manage listings</h2>
+              <p class="small-note">Use the email and password created in Firebase Authentication. Public clients do not need an account.</p>
+            </div>
+            <form id="adminLoginForm" class="admin-form compact-form">
+              <label class="field"><span>Email</span><input id="adminEmail" type="email" required placeholder="admin@email.com" autocomplete="email" /></label>
+              <label class="field"><span>Password</span><input id="adminPassword" type="password" required placeholder="••••••••" autocomplete="current-password" /></label>
+              <button class="btn btn-gold" type="submit">Enter admin panel</button>
+            </form>
+            <p class="small-note" id="loginStatus">Firebase login required.</p>
+          </article>
+        </section>
+
+        <section class="section reveal admin-only is-hidden" id="adminPanelSection">
+          <div class="admin-session-bar panel">
+            <div>
+              <p class="eyebrow">Live Firebase control</p>
+              <strong id="adminUserLabel">Signed in</strong>
+            </div>
+            <button class="btn btn-outline btn-sm" id="signOutButton" type="button">Sign out</button>
+          </div>
           <div class="admin-layout">
             <article class="panel admin-panel">
               <div class="admin-head">
@@ -86,6 +109,7 @@
                   <label class="field full"><span>Image URL</span><input id="image" type="url" placeholder="https://images.unsplash.com/..." /></label>
                   <label class="field full"><span>Short description</span><textarea id="description" rows="4" placeholder="Describe the property's strongest selling points."></textarea></label>
                   <label class="field checkbox-field"><input id="featured" type="checkbox" /><span>Mark as featured</span></label>
+                  <label class="field checkbox-field"><input id="isPublished" type="checkbox" checked /><span>Publish on public sales page</span></label>
                 </div>
 
                 <div class="admin-actions">
@@ -96,13 +120,13 @@
             </article>
 
             <aside class="panel admin-side-panel">
-              <p class="eyebrow">Static workflow</p>
-              <h3>How this works on GitHub Pages</h3>
+              <p class="eyebrow">Firebase workflow</p>
+              <h3>How this works</h3>
               <ol class="admin-steps">
-                <li>Add or edit listings on this page.</li>
-                <li>Click <strong>Export JSON</strong>.</li>
-                <li>Replace the file <code>data/properties.json</code> in your repo.</li>
-                <li>Push to GitHub and the public properties page updates.</li>
+                <li>The owner signs in through this hidden page.</li>
+                <li>Every saved listing goes to Firestore.</li>
+                <li>The public properties page reads Firestore automatically.</li>
+                <li>Visitors do not need an account to see the sales area.</li>
               </ol>
               <div class="admin-toolbar">
                 <button class="btn btn-outline btn-sm" id="exportJsonButton" type="button">Export JSON</button>
@@ -112,16 +136,16 @@
                 </label>
                 <button class="btn btn-outline btn-sm" id="resetSampleButton" type="button">Reset to sample</button>
               </div>
-              <p class="small-note" id="adminStatus">Using sample properties by default.</p>
+              <p class="small-note" id="adminStatus">Waiting for Firebase admin login.</p>
             </aside>
           </div>
         </section>
 
-        <section class="section reveal">
+        <section class="section reveal admin-only is-hidden">
           <div class="section-heading split-heading">
             <div>
-              <p class="eyebrow">Current local listings</p>
-              <h2>Your properties stored in this browser right now.</h2>
+              <p class="eyebrow">Current listings</p>
+              <h2>Listings currently loaded in the admin panel.</h2>
             </div>
             <p class="results-inline" id="adminResultsCount">0 properties</p>
           </div>
@@ -135,6 +159,10 @@
       </footer>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <script src="script.js"></script>
     <script src="admin.js"></script>
   </body>

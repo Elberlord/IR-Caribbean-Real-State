@@ -1164,3 +1164,29 @@ code {
     width: 100%;
   }
 }
+
+/* Firebase admin door */
+.is-hidden {
+  display: none !important;
+}
+
+.admin-login-panel {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.compact-form {
+  margin-top: 1.25rem;
+}
+
+.admin-session-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.admin-session-bar strong {
+  color: var(--gold-soft);
+}
