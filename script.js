@@ -332,7 +332,44 @@ function setLocalProperties(properties) {
   window.localStorage.setItem(PROPERTY_STORAGE_KEY, JSON.stringify(properties));
 }
 
+
+function setupHeroVideo() {
+  const video = document.querySelector('.hero-bg-video');
+  if (!video) return;
+
+  video.muted = true;
+  video.defaultMuted = true;
+  video.playsInline = true;
+  video.setAttribute('muted', '');
+  video.setAttribute('playsinline', '');
+  video.setAttribute('preload', 'auto');
+
+  const startVideo = () => {
+    const playPromise = video.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch((error) => {
+        console.warn('Hero video autoplay was delayed by the browser.', error);
+      });
+    }
+  };
+
+  video.addEventListener('loadeddata', startVideo, { once: true });
+  video.addEventListener('canplay', startVideo, { once: true });
+
+  if (video.readyState >= 2) {
+    startVideo();
+  } else {
+    video.load();
+  }
+
+  window.addEventListener('pageshow', startVideo);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) startVideo();
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  setupHeroVideo();
   applyContactLinks();
   setupMobileNav();
   setupReveal();

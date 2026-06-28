@@ -1125,14 +1125,20 @@ code {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: -3;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-video > *:not(.hero-bg-video):not(.hero-video-overlay) {
+  position: relative;
+  z-index: 2;
 }
 
 .hero-video::after {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: -1;
+  z-index: 1;
   pointer-events: none;
   background:
     radial-gradient(circle at 22% 50%, rgba(201, 166, 88, 0.13), transparent 36%),
@@ -1143,7 +1149,8 @@ code {
 .hero-video-overlay {
   position: absolute;
   inset: 0;
-  z-index: -2;
+  z-index: 1;
+  pointer-events: none;
   background: rgba(0, 0, 0, 0.12);
 }
 
