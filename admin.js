@@ -284,7 +284,7 @@
       } else {
         properties = await loadProperties();
         saveToLocal();
-        setStatus('Firebase is not configured yet. Loaded demo properties for local testing.');
+        setStatus('Firebase is not configured yet. No demo listings are loaded. Add real listings after admin login.');
       }
     }
 
@@ -326,22 +326,7 @@
     resetForm();
   }
 
-  async function resetToSample() {
-    const sample = typeof structuredClone !== 'undefined' ? structuredClone(SAMPLE_PROPERTIES) : JSON.parse(JSON.stringify(SAMPLE_PROPERTIES));
-    properties = sample.map((property) => ({ ...property, isPublished: true }));
 
-    if (firebaseMode) {
-      await importPropertiesToFirebase(properties);
-      properties = (await loadFirebaseProperties(true)) || properties;
-      setStatus('Sample properties were sent to Firebase.');
-    } else {
-      saveToLocal();
-      setStatus('Reset to bundled demo properties locally.');
-    }
-
-    renderList();
-    resetForm();
-  }
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -446,7 +431,6 @@
   document.getElementById('exportJsonButton')?.addEventListener('click', exportJson);
   document.getElementById('resetFormButton')?.addEventListener('click', resetForm);
   document.getElementById('cancelEditButton')?.addEventListener('click', resetForm);
-  document.getElementById('resetSampleButton')?.addEventListener('click', resetToSample);
   fields.image?.addEventListener('input', () => renderMediaPreview(fields.image.value.trim(), parseGalleryUrls()));
 
   fields.uploadMainImageButton?.addEventListener('click', () => {

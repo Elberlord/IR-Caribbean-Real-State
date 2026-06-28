@@ -79,3 +79,7 @@ The homepage is prepared to load:
 `hero-bienvenida.mp4`
 
 Keep that file in the root unless you change the video path in `index.html`.
+
+
+## Listing data
+Bundled sample listings were removed. The public properties page now shows only listings saved by the administrator in Firestore, or imported JSON/local browser data for testing.
