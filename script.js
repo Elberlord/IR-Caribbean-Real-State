@@ -1,9 +1,9 @@
 const CONFIG = {
   companyName: 'I&R Caribbean Real Estate',
-  whatsappNumber: '10000000000',
-  whatsappDisplay: '+1 000 000 0000',
+  whatsappNumber: '50688977592',
+  whatsappDisplay: '+506 8897 7592',
   whatsappMessage: 'Hello, I would like information about your properties.',
-  email: 'info@yourdomain.com',
+  email: 'rogelioguevara.pearson@gmail.com',
   emailSubject: 'Property inquiry',
   emailBody: 'Hello, I would like more information about your properties.'
 };
